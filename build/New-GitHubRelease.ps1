@@ -47,6 +47,28 @@ if ((Get-Command git -ErrorAction SilentlyContinue) -and (Test-Path (Join-Path $
 $notes = if ($log.Count) { "## 변경 사항`n`n" + ($log -join "`n") } else { '변경 사항 없음' }
 if ($Footer) { $notes += "`n`n$Footer" }
 
+# 릴리스 파일 올리기. Windows PowerShell 5.1 의 Invoke-RestMethod 는 github.com 에 큰 파일(수십 MB)을 올리다
+# "The underlying connection was closed" 로 끊기므로 Windows 에 들어 있는 curl.exe 로 (재시도 포함) 올림.
+# 토큰은 명령줄에 보이지 않게 임시 헤더 파일로 넘기고 바로 지움. curl 이 없으면 Invoke-RestMethod.
+function Send-ReleaseAsset([string]$UploadBase, [string]$File, [string]$ContentType, [string]$Name = '') {
+    if (-not $Name) { $Name = [IO.Path]::GetFileName($File) }
+    $uri = "$($UploadBase)?name=$([Uri]::EscapeDataString($Name))"
+    Write-Host ("Uploading {0} ({1:N1} MB)" -f $Name, ((Get-Item -LiteralPath $File).Length / 1MB))
+    $curl = Get-Command curl.exe -ErrorAction SilentlyContinue
+    if (-not $curl) {
+        Invoke-RestMethod -UseBasicParsing -TimeoutSec 900 -Method Post -Uri $uri -Headers $headers -ContentType $ContentType -InFile $File | Out-Null
+        return
+    }
+    $headerFile = [IO.Path]::GetTempFileName()
+    try {
+        [IO.File]::WriteAllText($headerFile, "Authorization: Bearer $env:GH_TOKEN`r`nAccept: application/vnd.github+json`r`nContent-Type: $ContentType`r`nExpect:`r`n")
+        $output = & $curl.Source --silent --show-error --fail --http1.1 --retry 3 --retry-delay 5 --retry-all-errors --max-time 1200 `
+            -X POST -H "@$headerFile" --data-binary "@$File" $uri 2>&1
+        if ($LASTEXITCODE -ne 0) { throw "Uploading $Name failed (curl exit $LASTEXITCODE): $((($output | Out-String).Trim()))" }
+    }
+    finally { Remove-Item -LiteralPath $headerFile -Force -ErrorAction SilentlyContinue }
+}
+
 $release = Send-Json Post "$api/releases" @{
     tag_name = "v$Version"; target_commitish = $env:GITHUB_SHA; name = "$Title v$Version"
     body = $notes; draft = $true; prerelease = $false
@@ -54,11 +76,8 @@ $release = Send-Json Post "$api/releases" @{
 try {
     $upload = $release.upload_url -replace '\{.*\}', ''
     foreach ($file in $files) {
-        $name = [IO.Path]::GetFileName($file)
-        $type = if ($name -like '*.zip') { 'application/zip' } else { 'application/octet-stream' }
-        Write-Host ("Uploading {0} ({1:N1} MB)" -f $name, ((Get-Item -LiteralPath $file).Length / 1MB))
-        # 멈춘 업로드가 작업 시간을 다 잡아먹지 않게 파일마다 10분 제한. 넘으면 아래에서 초안을 지우고 실패
-        Invoke-RestMethod -UseBasicParsing -TimeoutSec 600 -Method Post -Uri "$($upload)?name=$([Uri]::EscapeDataString($name))" -Headers $headers -ContentType $type -InFile $file | Out-Null
+        $type = if ($file -like '*.zip') { 'application/zip' } else { 'application/octet-stream' }
+        Send-ReleaseAsset $upload $file $type
     }
     $published = Send-Json Patch $release.url @{ draft = $false }
 }
