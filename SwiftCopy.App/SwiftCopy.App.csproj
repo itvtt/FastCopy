@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <!-- 릴리스 버전의 바닥값: Actions 러너는 마지막 릴리스의 다음 번호를 고름 (예전 i-luncher 버전 1.0.3 부터 이어감) -->
-    <Version>1.0.3</Version>
+    <Version>2.0.0</Version>
     <OutputType>WinExe</OutputType>
     <UseWPF>true</UseWPF>
     <AssemblyName>SwiftCopy</AssemblyName>
