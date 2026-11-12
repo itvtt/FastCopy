@@ -64,16 +64,46 @@ public static class TransferEngine
     private static void EnsureNoLinks(string path)
     {
         for (string? current = path; current != null; current = Path.GetDirectoryName(current))
+            if (IsLink(NativeFiles.Attributes(current))) throw LinkError(current);
+    }
+
+    private static bool IsLink(uint attributes) =>
+        attributes != NativeFiles.MissingAttributes && (attributes & (uint)FileAttributes.ReparsePoint) != 0;
+
+    private static IOException LinkError(string path) => new($"안전한 전송을 위해 링크/정션 경로는 지원하지 않습니다: {path}");
+
+    /// <summary>
+    /// Links and junctions on the way to a file, checked per run: every folder (and its parents) once, then only the file itself.
+    /// Checking every parent again for each file was a large share of the time for many small files (2026-11-12, 20,000 files).
+    /// </summary>
+    private sealed class LinkGuard
+    {
+        private readonly System.Collections.Concurrent.ConcurrentDictionary<string, byte> _checked = new(StringComparer.OrdinalIgnoreCase);
+
+        public void Folder(string? path)
         {
-            try
+            for (string? current = path; current != null && !_checked.ContainsKey(current); current = Path.GetDirectoryName(current))
             {
-                if ((File.GetAttributes(current) & FileAttributes.ReparsePoint) != 0)
-                    throw new IOException($"안전한 전송을 위해 링크/정션 경로는 지원하지 않습니다: {current}");
+                if (IsLink(NativeFiles.Attributes(current))) throw LinkError(current);
+                _checked.TryAdd(current, 0);
             }
-            catch (FileNotFoundException) { }
-            catch (DirectoryNotFoundException) { }
+        }
+
+        /// <summary>The file's attributes (missing when it does not exist), after its folders and the file itself are checked.</summary>
+        public uint File(string path)
+        {
+            Folder(Path.GetDirectoryName(path));
+            uint attributes = NativeFiles.Attributes(path);
+            if (IsLink(attributes)) throw LinkError(path);
+            return attributes;
         }
     }
+
+    // New files below this size are copied straight to their name: the temporary file and its rename cost more than the copy itself
+    // for small files (20,000 files of 4 KB: 8 s straight, 14.6 s through a temporary file). A failed or cancelled copy removes what
+    // it wrote (the name did not exist before: the copy refuses an existing name). Larger files and overwrites keep the temporary
+    // file, so a crash never leaves a long half-written file, and an overwrite keeps the old file until the new one is complete.
+    internal const long DirectCopyLimit = 8L * 1024 * 1024;
 
     public static async Task<TransferResult> RunAsync(TransferOptions options, TransferSession session, CancellationToken token = default)
     {
@@ -86,6 +116,7 @@ public static class TransferEngine
         session.Log("START", destination, $"Workers={options.Workers}; Move={options.Move}; Verify={options.Verify || options.Move}; Conflict={options.Conflict}");
         using var linked = CancellationTokenSource.CreateLinkedTokenSource(token);
         var runToken = linked.Token;
+        var guard = new LinkGuard();
         var producer = Task.Run(async () =>
         {
             try
@@ -139,8 +170,8 @@ public static class TransferEngine
                     session.Wait(runToken);
                     try
                     {
-                        EnsureNoLinks(dir.Source);
-                        EnsureNoLinks(dir.Destination);
+                        guard.Folder(dir.Source);
+                        guard.Folder(dir.Destination);
                         Directory.CreateDirectory(dir.Destination);
                         directories.Add(dir);
                         foreach (var entry in new DirectoryInfo(dir.Source).EnumerateFileSystemInfos())
@@ -178,7 +209,7 @@ public static class TransferEngine
                         session.Wait(runToken);
                         try
                         {
-                            var state = Transfer(item, options, session, id, runToken);
+                            var state = Transfer(item, options, session, guard, id, runToken);
                             session.FinishWorkerFile(id, state);
                         }
                         catch (OperationCanceledException)
@@ -235,12 +266,13 @@ public static class TransferEngine
         return new(snapshot, cancelled);
     }
 
-    private static TransferWorkerState Transfer(WorkItem item, TransferOptions options, TransferSession session,
+    private static TransferWorkerState Transfer(WorkItem item, TransferOptions options, TransferSession session, LinkGuard guard,
         int workerId, CancellationToken token)
     {
-        EnsureNoLinks(item.Source);
-        EnsureNoLinks(item.Destination);
-        if (File.Exists(item.Destination) && options.Conflict == ConflictPolicy.Skip)
+        guard.File(item.Source);
+        uint existing = guard.File(item.Destination);
+        bool exists = existing != NativeFiles.MissingAttributes && (existing & (uint)FileAttributes.Directory) == 0;
+        if (exists && options.Conflict == ConflictPolicy.Skip)
         {
             Interlocked.Increment(ref session.Skipped);
             session.Log("SKIP_EXISTS", item.Source);
@@ -253,7 +285,13 @@ public static class TransferEngine
             var moveState = TryFastMove(item, options, session, workerId, token);
             if (moveState.HasValue) return moveState.Value;
         }
-        string temporary = Path.Combine(folder, $".swiftcopy-{Guid.NewGuid():N}.partial");
+        // Straight to the name (small, new) or through a temporary file that is renamed once complete (see DirectCopyLimit).
+        bool direct = options.Conflict != ConflictPolicy.Overwrite && item.Length < DirectCopyLimit;
+        string committed = item.Destination;
+        int suffix = 1;
+        string temporary = direct ? committed : Path.Combine(folder, $".swiftcopy-{Guid.NewGuid():N}.partial");
+        bool kept = false;
+        string? created = null;
         long transferred = 0;
         try
         {
@@ -261,10 +299,12 @@ public static class TransferEngine
             long length = source.Length;
             session.SetWorkerTotal(workerId, length);
             session.SetWorkerState(workerId, TransferWorkerState.Copying);
-            for (int attempt = 0; ; attempt++)
+            for (int attempt = 0; ; )
             {
                 try
                 {
+                    // The copy refuses an existing name, so what is at this name after it starts is its own.
+                    created = temporary;
                     NativeFiles.Copy(item.Source, temporary, options.UnbufferedLargeFiles && length >= 256L * 1024 * 1024,
                         session, value =>
                         {
@@ -274,13 +314,27 @@ public static class TransferEngine
                         }, token);
                     break;
                 }
+                // The name was taken meanwhile (the copy refuses an existing name): skip it, or the next free one for 둘 다 유지.
+                catch (Win32Exception ex) when (direct && ex.NativeErrorCode is 80 or 183)
+                {
+                    created = null;  // someone else's file: never removed
+                    if (options.Conflict == ConflictPolicy.Skip)
+                    {
+                        Interlocked.Increment(ref session.Skipped);
+                        session.Log("SKIP_EXISTS", item.Source);
+                        return TransferWorkerState.Skipped;
+                    }
+                    committed = temporary = Path.Combine(folder, $"{Path.GetFileNameWithoutExtension(item.Destination)} ({suffix++}){Path.GetExtension(item.Destination)}");
+                    session.SetWorkerDestination(workerId, committed);
+                }
                 catch (Win32Exception ex) when (attempt < 2 && ex.NativeErrorCode is 32 or 33 or 64 or 121)
                 {
+                    attempt++;
                     RemoveTemporary(temporary);
                     Interlocked.Add(ref session.InFlightBytes, -transferred); transferred = 0;
                     session.SetWorkerProgress(workerId, 0);
                     session.Log("RETRY", item.Source, ex.Message);
-                    if (token.WaitHandle.WaitOne(300 * (attempt + 1))) token.ThrowIfCancellationRequested();
+                    if (token.WaitHandle.WaitOne(300 * attempt)) token.ThrowIfCancellationRequested();
                 }
             }
             if (new FileInfo(temporary).Length != length) throw new IOException("복사한 파일의 크기가 일치하지 않습니다.");
@@ -293,11 +347,14 @@ public static class TransferEngine
                 if (!original.AsSpan().SequenceEqual(Hash(target, session, token))) throw new IOException("SHA-256 검증에 실패했습니다. 원본을 보존합니다.");
             }
             session.Wait(token);
-            EnsureNoLinks(item.Destination);
-            string committed = item.Destination;
-            if (options.Conflict == ConflictPolicy.KeepBoth)
+            guard.File(committed);
+            if (direct)
             {
-                int suffix = 1;
+                // Already at its name: complete (and checked) from here on.
+                kept = true;
+            }
+            else if (options.Conflict == ConflictPolicy.KeepBoth)
+            {
                 while (true)
                 {
                     token.ThrowIfCancellationRequested();
@@ -329,8 +386,12 @@ public static class TransferEngine
         finally
         {
             Interlocked.Add(ref session.InFlightBytes, -transferred);
-            try { RemoveTemporary(temporary); }
-            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { session.Error(temporary, ex); }
+            // Only what this copy wrote: a temporary file, or a straight copy that did not finish (its name was free before).
+            if (!kept && created is not null)
+            {
+                try { RemoveTemporary(created); }
+                catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { session.Error(created, ex); }
+            }
         }
     }
 

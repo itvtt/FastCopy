@@ -36,6 +36,15 @@ internal static class NativeFiles
     private static extern bool SetFileInformationByHandle(SafeFileHandle handle, int infoClass,
         ref int info, uint size);
 
+    [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+    private static extern uint GetFileAttributesW(string name);
+
+    internal const uint MissingAttributes = uint.MaxValue;
+
+    /// <summary>The path's attributes without an exception for a missing one (<see cref="MissingAttributes"/>): checking every file
+    /// and folder this way costs a single call, where File.GetAttributes threw for each destination that did not exist yet.</summary>
+    internal static uint Attributes(string path) => GetFileAttributesW(Extended(path));
+
     internal static string Extended(string path) => path.StartsWith(@"\\?\", StringComparison.Ordinal)
         ? path : path.StartsWith(@"\\", StringComparison.Ordinal) ? @"\\?\UNC\" + path[2..] : @"\\?\" + path;
 
