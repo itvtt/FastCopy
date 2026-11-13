@@ -65,16 +65,17 @@ internal static class NativeFiles
             throw new Win32Exception(Marshal.GetLastWin32Error());
     }
 
+    /// <param name="bytes">진행률 (null 이면 콜백 없이: 작은 파일은 콜백 비용이 복사보다 큼. 일시정지·취소는 파일 사이에서)</param>
     internal static void Copy(string source, string destination, bool unbuffered,
-        TransferSession session, Action<long> bytes, CancellationToken token)
+        TransferSession session, Action<long>? bytes, CancellationToken token)
     {
-        Progress callback = (_, transferred, _, _, _, _, _, _, _) =>
+        Progress? callback = bytes is null ? null : (_, transferred, _, _, _, _, _, _, _) =>
         {
             try { session.Wait(token); bytes(transferred); return token.IsCancellationRequested ? 1u : 0u; }
             catch (OperationCanceledException) { return 1; }
         };
         uint flags = 1u | (unbuffered ? 0x1000u : 0u);
-        if (!CopyFileExW(Extended(source), Extended(destination), callback, IntPtr.Zero, IntPtr.Zero, flags))
+        if (!CopyFileExW(Extended(source), Extended(destination), callback!, IntPtr.Zero, IntPtr.Zero, flags))
         {
             int error = Marshal.GetLastWin32Error();
             token.ThrowIfCancellationRequested();

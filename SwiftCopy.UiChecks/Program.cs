@@ -129,14 +129,15 @@ internal static class Program
                 window.UpdateLayout();
                 Console.WriteLine("PASS Setup, prominent status and actions remain visible at default/minimum sizes");
                 var workerSelector = Control<ComboBox>("WorkerCountBox");
-                if (workerSelector.SelectedIndex != 2 || ((ComboBoxItem)workerSelector.SelectedItem).Content?.ToString() != "4")
-                    throw new Exception("Default worker count is not 4");
+                if (workerSelector.SelectedIndex != 3 || ((ComboBoxItem)workerSelector.SelectedItem).Content?.ToString() != "8")
+                    throw new Exception("Default worker count is not 8");
                 string[] workerChoices = workerSelector.Items.Cast<ComboBoxItem>().Select(item => item.Content?.ToString() ?? "").ToArray();
                 if (!workerChoices.SequenceEqual(["1", "2", "4", "8", "16"]))
                     throw new Exception("Worker count choices are incomplete: " + string.Join(",", workerChoices));
                 if (string.IsNullOrWhiteSpace(workerSelector.ToolTip?.ToString()) && string.IsNullOrWhiteSpace(((FrameworkElement)workerSelector.Parent).ToolTip?.ToString()))
                     throw new Exception("Worker selector needs the storage-performance guidance tooltip");
 
+                workerSelector.SelectedIndex = 2;  // 4 lanes for the snapshot below (the default is 8)
                 var laneSnapshots = new TransferWorkerSnapshot[]
                 {
                     new(0, @"C:\fixtures\alpha.bin", @"D:\copy\alpha.bin", 100, 40, 3, TransferWorkerState.Copying),
@@ -161,7 +162,7 @@ internal static class Program
                 updateLanes.Invoke(window, [laneSnapshots, true]);
                 if (!lanes[0].Stage.StartsWith("일시정지", StringComparison.Ordinal) || lanes[0].IsIndeterminate || lanes[1].ProgressText != "검증 일시정지")
                     throw new Exception("Paused worker lane state is not represented accurately");
-                Console.WriteLine("PASS Worker selector defaults to 4 with bounded choices; simultaneous copy/verify/error/pause lane states render accurately");
+                Console.WriteLine("PASS Worker selector defaults to 8 with bounded choices; simultaneous copy/verify/error/pause lane states render accurately");
                 if (!window.FontFamily.Source.Contains("SwiftCopy Sans") || window.FontSize < 14) throw new Exception("Bundled readable font not configured");
                 foreach (var weight in new[] { FontWeights.Medium, FontWeights.SemiBold })
                 {

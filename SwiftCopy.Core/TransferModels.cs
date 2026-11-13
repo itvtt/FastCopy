@@ -9,7 +9,7 @@ public sealed record TransferWorkerSnapshot(int Id, string Source, string Destin
     long TotalBytes, long TransferredBytes, long CompletedFiles, TransferWorkerState State);
 
 public sealed record TransferOptions(IReadOnlyList<string> Sources, string Destination,
-    int Workers = 4, ConflictPolicy Conflict = ConflictPolicy.Skip, bool Move = false,
+    int Workers = 8, ConflictPolicy Conflict = ConflictPolicy.Skip, bool Move = false,
     bool Verify = false, bool UnbufferedLargeFiles = true);
 
 public sealed record TransferSnapshot(long FoundFiles, long FoundBytes, long CopiedFiles,
