@@ -114,6 +114,8 @@ public static class TransferEngine
         var roots = Validate(options);
         string destination = Normalize(options.Destination);
         Directory.CreateDirectory(destination);
+        // 폴더를 새 위치로 그냥 복사할 때는 robocopy (작은 파일이 많을 때 더 빠름, RobocopyTransfer 설명)
+        if (RobocopyTransfer.CanUse(options, roots, destination)) return await RobocopyTransfer.RunAsync(options, roots, destination, session, token);
         session.InitializeWorkers(options.Workers);
         // Work goes out in small batches of files from one folder: one worker creating them one after another is faster than
         // several workers creating files in the same folder at once (20,000 small files: about 8% faster, closer to robocopy).

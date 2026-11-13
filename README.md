@@ -39,15 +39,22 @@ Send / Receive로 소스를 동기화할 때는 상위 i-luncher 폴더의 `Buil
 - 일반 복사는 원본을 따로 열어 두지 않습니다. 이동·검증할 때만 원본 핸들을 열어 복사하는 동안 쓰기·삭제를 차단합니다.
 - 다른 볼륨으로 이동할 때는 SHA-256으로 기본 데이터 스트림을 비교한 뒤 원본 파일 핸들로 삭제합니다.
 
-### robocopy 와 비교 (2026-11-13, 이 PC: 가상 디스크 Z: → F:, Defender 실시간 검사 켜짐, 동시 8개, 중간값)
+### 폴더를 새 위치로 복사: robocopy 사용
 
-| 파일 | SwiftCopy | robocopy /MT:8 |
-|---|---|---|
-| 4 KB × 20,000 | 7.3초 (고치기 전 8.9초) | 6.0초 |
-| 1 MB × 1,000 | 약 1.1초 | 약 0.8~1.0초 |
-| 1 GB × 4 | 약 8초 | 약 8초 |
+폴더를 대상에 아직 없는 이름으로 그냥 복사할 때(이동·검증 아님)는 Windows 의 `robocopy /MT:<동시 작업 수>` 로 복사합니다 (`SwiftCopy.Core\RobocopyTransfer.cs`).
+같은 Windows 복사 함수를 써도 Defender 가 robocopy 가 만든 파일을 훨씬 덜 검사해서, 작은 파일이 많을 때 SwiftCopy 엔진보다 빠릅니다(같은 복사에서 Defender CPU 약 29초 대 9초).
+진행 상황은 robocopy 의 유니코드 로그로 보여 주고, 일시정지는 robocopy 를 멈추며, 취소하면 원본과 크기·수정 시각이 다른 파일(덜 복사된 것)을 지웁니다. 기존 폴더에 합치기, 파일 선택, 이동, 검증은 SwiftCopy 엔진이 합니다. 시험할 때 `SWIFTCOPY_ENGINE=own` 이면 엔진만 씁니다.
 
-큰 파일은 디스크 속도에서 같습니다. 작은 파일의 차이는 Windows Defender 가 SwiftCopy 가 만든 파일을 robocopy 보다 훨씬 많이 검사해서입니다(같은 복사에서 Defender CPU 약 29초 대 9초). 같은 Windows 복사 함수(CopyFile2/CopyFileEx)를 써도 그렇고, 한 개씩 복사하면 SwiftCopy 가 robocopy 보다 같거나 빠릅니다. 측정: `SwiftCopy.Benchmarks copydir <원본> <대상> <동시 작업 수>`.
+측정 (2026-11-13, 이 PC: 가상 디스크 Z: → F:, Defender 켜짐, 동시 8개, 중간값):
+
+| 파일 | 처음 | SwiftCopy 엔진만 | 지금 (robocopy 사용) | robocopy /MT:8 |
+|---|---|---|---|---|
+| 4 KB × 20,000 | 8.9초 | 7.3초 | 5.8초 | 5.7초 |
+| 1 MB × 1,000 | 1.5초 | 1.1초 | 1.7초 | 1.7초 |
+| 1 GB × 4 | 8초 | 8초 | 8.0초 | 7.9초 |
+
+이 PC 에서는 robocopy 동시 8개가 한계입니다: 동시 32개 7.5초, robocopy 2개 동시 7.8초, 4개 동시 45초로 오히려 느려집니다. 측정: `SwiftCopy.Benchmarks copydir <원본> <대상> <동시 작업 수>`.
+
 - 취소·실패하면 진행 중인 임시 파일이나 끝나지 않은 바로 복사 파일을 지우고 이미 완료한 파일은 유지합니다. 원본과 대상이 겹치는 경로는 거부합니다. 권한·잠금 등의 오류는 기록하고 다른 항목을 계속 처리합니다.
 - 전송 기록: `%LOCALAPPDATA%\SwiftCopy\Logs`. 오류, 건너뜀, 재시도, 폴더 즉시 이동과 최종 집계를 기록합니다.
 

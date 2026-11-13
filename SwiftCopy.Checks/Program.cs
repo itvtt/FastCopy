@@ -205,8 +205,8 @@ await Test("Pause blocks work and cancellation leaves originals and no partial f
     var task = TransferEngine.RunAsync(new([source], dest, Move: true), session, cts.Token);
     await Task.Delay(200);
     var paused = session.Snapshot();
-    Assert(paused.Paused && paused.Workers.Count == 4, "Paused snapshot or worker slot count is incorrect");
-    Assert(paused.Workers.Select(x => x.Id).SequenceEqual(Enumerable.Range(0, 4)), "Worker identities are not stable");
+    Assert(paused.Paused && paused.Workers.Count == 8, "Paused snapshot or worker slot count is incorrect");
+    Assert(paused.Workers.Select(x => x.Id).SequenceEqual(Enumerable.Range(0, 8)), "Worker identities are not stable");
     Assert(paused.Workers.All(x => x.State == TransferWorkerState.Waiting && x.Source.Length == 0), "Paused workers started transfer work");
     Assert(!task.IsCompleted && !File.Exists(Path.Combine(dest, "a.txt")), "Pause did not block transfer");
     cts.Cancel(); var r = await task.WaitAsync(TimeSpan.FromSeconds(10));
@@ -222,7 +222,7 @@ await Test("Resume completes a paused transfer", async () =>
     var capturedWaitingWorkers = session.Snapshot().Workers;
     await Task.Delay(100); session.Resume(); var r = await task.WaitAsync(TimeSpan.FromSeconds(10));
     Assert(r.Snapshot.CopiedFiles == 1, "Resume failed");
-    Assert(capturedWaitingWorkers.Count == 4
+    Assert(capturedWaitingWorkers.Count == 8
         && capturedWaitingWorkers.All(x => x.State == TransferWorkerState.Waiting && x.Source.Length == 0 && x.CompletedFiles == 0),
         "A previously captured worker snapshot changed with live progress");
 });
@@ -264,6 +264,34 @@ await Test("Cancel in-flight overwrite retains previous target and source", asyn
         "Cancellation relabeled an already completed worker lane");
     Assert(r.Snapshot.Workers.All(x => x.State is TransferWorkerState.Completed or TransferWorkerState.Skipped
         or TransferWorkerState.Failed or TransferWorkerState.Cancelled), "Active cancellation left a non-terminal worker lane");
+});
+
+await Test("Folder copy to a new place (robocopy): cancel leaves no unfinished file, pause holds progress", async () =>
+{
+    string big = Path.Combine(root, "large/source/large.bin");
+    string source = Dir("rc/source"); string dest = Dir("rc/dest");
+    for (int i = 0; i < 3; i++) File.Copy(big, Path.Combine(source, $"big{i}.bin"));
+    for (int i = 0; i < 50; i++) Write($"rc/source/small/{i}.txt", "small " + i);
+    using var session = new TransferSession(Dir("logs")); using var cts = new CancellationTokenSource();
+    var task = TransferEngine.RunAsync(new([source], dest, Workers: 2), session, cts.Token);
+    Assert(!task.IsCompleted, "Robocopy transfer blocked the caller");
+    await Task.Delay(400);
+    session.Pause();
+    await Task.Delay(300);
+    long before = session.Snapshot().CopiedFiles;
+    await Task.Delay(500);
+    Assert(session.Snapshot().CopiedFiles == before && !task.IsCompleted, "Pause did not hold the robocopy transfer");
+    session.Resume();
+    cts.Cancel();
+    var r = await task.WaitAsync(TimeSpan.FromSeconds(30));
+    Assert(r.Cancelled, "Robocopy transfer was not cancelled");
+    foreach (string copy in Directory.EnumerateFiles(Path.Combine(dest, "source"), "*", SearchOption.AllDirectories))
+    {
+        var original = new FileInfo(Path.Combine(source, Path.GetRelativePath(Path.Combine(dest, "source"), copy)));
+        var target = new FileInfo(copy);
+        Assert(original.Length == target.Length && original.LastWriteTimeUtc == target.LastWriteTimeUtc, "Unfinished file left after cancel: " + copy);
+    }
+    Assert(Directory.EnumerateFiles(source, "*", SearchOption.AllDirectories).Count() == 53, "Source changed");
 });
 
 int count = args.Contains("--scale") ? 300_000 : 5_000;
