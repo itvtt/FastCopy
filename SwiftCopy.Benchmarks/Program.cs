@@ -12,7 +12,7 @@ if (args[0] == "copydir")
     int count = int.Parse(args[3]);
     using var run = new TransferSession(Path.Combine(Path.GetTempPath(), "SwiftCopyBench-logs"));
     var timer = Stopwatch.StartNew();
-    var outcome = await TransferEngine.RunAsync(new([from], to, Workers: count), run);
+    var outcome = await TransferEngine.RunAsync(new([from], to, Workers: count, Move: Environment.GetEnvironmentVariable("SWIFTCOPY_MOVE") == "1"), run);
     timer.Stop();
     if (outcome.Cancelled || outcome.Snapshot.Errors != 0) throw new Exception("Transfer failed.");
     Console.WriteLine(JsonSerializer.Serialize(new { files = outcome.Snapshot.CopiedFiles, bytes = outcome.Snapshot.CopiedBytes, seconds = timer.Elapsed.TotalSeconds }));
