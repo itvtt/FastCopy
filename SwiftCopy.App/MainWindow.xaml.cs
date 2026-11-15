@@ -249,7 +249,7 @@ public partial class MainWindow : Window
         TransferProgress.IsIndeterminate = state is WorkState.Validating or WorkState.Scanning or WorkState.Cancelling;
         TaskbarItemInfo.ProgressState = taskbar;
         if (state == WorkState.Validating) TaskbarItemInfo.ProgressValue = 0;
-        Title = "SwiftCopy · " + label;
+        Title = "FastCopy · " + label;
     }
 
     private void SetRunning(bool value)
@@ -353,13 +353,13 @@ public partial class MainWindow : Window
         {
             e.Cancel = true;
             if (closeWhenStopped) return;
-            if (MessageBox.Show(this, "진행 중인 전송을 취소하고 닫을까요? 완료한 파일은 유지됩니다.", "SwiftCopy", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+            if (MessageBox.Show(this, "진행 중인 전송을 취소하고 닫을까요? 완료한 파일은 유지됩니다.", "FastCopy", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
             { closeWhenStopped = true; Cancel_Click(this, new RoutedEventArgs()); }
         }
         else if (validating) e.Cancel = true;
         else session?.Dispose();
     }
-    private void ShowError(Exception ex) => MessageBox.Show(this, ex.Message, "SwiftCopy · 확인이 필요합니다", MessageBoxButton.OK, MessageBoxImage.Information);
+    private void ShowError(Exception ex) => MessageBox.Show(this, ex.Message, "FastCopy · 확인이 필요합니다", MessageBoxButton.OK, MessageBoxImage.Information);
     private static string FormatBytes(double bytes)
     {
         string[] units = ["B", "KB", "MB", "GB", "TB"];

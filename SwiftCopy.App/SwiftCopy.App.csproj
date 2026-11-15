@@ -5,6 +5,8 @@
     <OutputType>WinExe</OutputType>
     <UseWPF>true</UseWPF>
     <AssemblyName>SwiftCopy</AssemblyName>
+    <AssemblyTitle>FastCopy</AssemblyTitle>
+    <Product>FastCopy</Product>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>Assets/SwiftCopy.ico</ApplicationIcon>
   </PropertyGroup>
