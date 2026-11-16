@@ -1,16 +1,14 @@
-# SwiftCopy
+# FastCopy
+
+> **이름**: 런처·창 제목에 보이는 이름과 저장소·폴더 이름은 **FastCopy** 입니다. 코드와 설치 이름은 예전 이름 **SwiftCopy** 그대로입니다: 프로젝트 `SwiftCopy.App`·`SwiftCopy.Core`(네임스페이스 `SwiftCopy`), 실행 파일 `SwiftCopy.exe`, 설치 폴더 `%LOCALAPPDATA%\Programs\SwiftCopy`, 런처 id `swiftcopy`, 기록 폴더 `%LOCALAPPDATA%\SwiftCopy`. 설치·자체 업데이트가 이 이름을 따르므로 바꾸지 않습니다. 사용자가 "FastCopy"라고 하면 이 앱입니다.
 
 Windows용 C# WPF 파일 복사·이동 앱입니다. **왼쪽에서 원본을 선택하고, 오른쪽에서 대상 폴더를 정한 뒤 복사 또는 이동 버튼을 누르면 바로 실행됩니다.**
 
-기본 빌드는 [통합 i-luncher](../README.md)에 포함되는 라이브러리입니다. 별도 EXE 개발·게시 명령에는 `-p:ILuncherIntegrated=false`를 지정합니다.
-
-Send / Receive로 소스를 동기화할 때는 상위 i-luncher 폴더의 `Build.ps1 -App swift-copy`로 빌드하고 `Start-Launcher.cmd`로 실행하세요. 아래의 직접 빌드·실행 명령은 [로컬 작업 복사본](../README.md)에서 사용해야 원본 clone에 빌드 폴더가 생기지 않습니다.
-
-![SwiftCopy 화면](artifacts/SwiftCopy-preview.png)
+i-luncher 로 설치·업데이트합니다: main 에 push 하면 이 저장소의 러너가 `.github\workflows\release.yml` 로 릴리스를 만들고(`build\Publish-App.ps1`), 런처가 설치하며, 설치된 앱은 시작할 때 스스로 업데이트합니다.
 
 ## 실행
 
-`Start-Launcher.cmd`로 i-luncher를 열고 SwiftCopy를 선택하세요. 통합 실행 파일의 `--app swift-copy` 옵션으로도 직접 열 수 있습니다. 별도로 게시한 독립 버전은 `dist/win-x64/SwiftCopy.exe`로 실행합니다.
+i-luncher 에서 **FastCopy** 를 엽니다. 개발 중에는 `dotnet run --project SwiftCopy.App`.
 
 기본 제목 표시줄 대신 앱과 통합된 상단 바를 사용합니다. 오른쪽의 최소화·최대화/복원·닫기 버튼으로 창을 제어하며, 상단 빈 영역 드래그, 더블클릭 최대화/복원, 가장자리 크기 조절을 지원합니다.
 
@@ -64,7 +62,6 @@ Send / Receive로 소스를 동기화할 때는 상위 i-luncher 폴더의 `Buil
 
 ## 검증
 
-검증 보고서는 `artifacts` 폴더에 있습니다. 병렬 작업 추가 후의 [대량 파일 비교 측정과 검증 결과](../artifacts/swiftcopy-performance/README.md)에는 준비 시간과 실제 복사 시간을 구분해 기록했습니다.
 
 - 실제 300,000개 작은 파일 복사 후 **모든 출력 파일의 내용과 개수 일치** 확인.
 - 같은 볼륨의 300,000개 파일 포함 폴더 이동: **24.55ms**, 이동 전후 개수 및 원본 위치 제거 확인. 이 수치는 탐색·내용 재복사 없는 폴더 이름 변경이며 사전·사후 개수 검사는 측정 밖입니다.
@@ -85,11 +82,12 @@ Visual Studio에서 `SwiftCopy.sln`을 열고 `SwiftCopy.App`을 시작 프로�
 
 ```powershell
 dotnet build SwiftCopy.sln -c Release
-dotnet run --project SwiftCopy.App -c Debug -p:ILuncherIntegrated=false
+dotnet run --project SwiftCopy.App -c Debug
 dotnet run --project SwiftCopy.Checks -c Release
 dotnet run --project SwiftCopy.Checks -c Release -- --scale
 dotnet run --project SwiftCopy.UiChecks -c Release
-dotnet publish SwiftCopy.App -c Release -r win-x64 --self-contained true -p:ILuncherIntegrated=false -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true -o dist/win-x64
+# 릴리스 zip (러너가 하는 것과 같음): out\SwiftCopy-win-x64.zip
+powershell -NoProfile -ExecutionPolicy Bypass -File build\Publish-App.ps1 -Project SwiftCopy.App\SwiftCopy.App.csproj
 ```
 
 `SwiftCopy.Core`: 전송 엔진 / `SwiftCopy.App`: WPF 화면 / `SwiftCopy.Checks`: 실제 파일 검사 / `SwiftCopy.UiChecks`: WPF 이벤트 검사.
