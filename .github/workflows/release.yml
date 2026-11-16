@@ -1,5 +1,5 @@
-# SwiftCopy 릴리스 (i-luncher AppKit): self-hosted Windows 러너가 main 에 푸시될 때마다 빌드하고,
-# 다음 버전을 골라 GitHub Release 에 SwiftCopy-win-x64.zip 을 올립니다.
+# FastCopy 릴리스 (i-luncher AppKit): self-hosted Windows 러너가 main 에 푸시될 때마다 빌드하고,
+# 다음 버전을 골라 GitHub Release 에 FastCopy-win-x64.zip 을 올립니다.
 #   - i-luncher 는 이 저장소 주소로 앱을 추가해 두면 최신 릴리스 버전을 보여 주고, 클릭할 때 설치·업데이트합니다
 #   - 설치된 앱은 따로 실행해도 시작할 때 이 릴리스를 확인해 스스로 업데이트합니다 (AppKit\AppUpdater.cs)
 # github.com 과 GitHub Enterprise 모두 그대로 동작합니다.
@@ -26,7 +26,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: SwiftCopy-release
+  group: FastCopy-release
   cancel-in-progress: false
 
 jobs:
@@ -57,12 +57,12 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           REQUESTED_VERSION: ${{ github.event.inputs.version }}
-        run: powershell -NoProfile -ExecutionPolicy Bypass -File build\Get-NextVersion.ps1 -Project 'SwiftCopy.App\SwiftCopy.App.csproj'
+        run: powershell -NoProfile -ExecutionPolicy Bypass -File build\Get-NextVersion.ps1 -Project 'FastCopy.App\FastCopy.App.csproj'
 
       - name: Build
         id: build
         shell: powershell
-        run: powershell -NoProfile -ExecutionPolicy Bypass -File build\Publish-App.ps1 -Project 'SwiftCopy.App\SwiftCopy.App.csproj' -Version ${{ steps.version.outputs.version }}
+        run: powershell -NoProfile -ExecutionPolicy Bypass -File build\Publish-App.ps1 -Project 'FastCopy.App\FastCopy.App.csproj' -Version ${{ steps.version.outputs.version }}
 
       - name: Create release
         shell: powershell
@@ -71,6 +71,6 @@ jobs:
           RELEASE_VERSION: ${{ steps.version.outputs.version }}
           RELEASE_PREVIOUS: ${{ steps.version.outputs.previous }}
           RELEASE_ASSETS: ${{ steps.build.outputs.zip }}
-          RELEASE_TITLE: 'SwiftCopy'
+          RELEASE_TITLE: 'FastCopy'
           RELEASE_FOOTER: 'i-luncher 에서 설치하세요. 설치된 앱은 시작할 때 스스로 업데이트합니다.'
         run: powershell -NoProfile -ExecutionPolicy Bypass -File build\New-GitHubRelease.ps1

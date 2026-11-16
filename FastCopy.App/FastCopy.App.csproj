@@ -4,11 +4,11 @@
     <Version>2.0.0</Version>
     <OutputType>WinExe</OutputType>
     <UseWPF>true</UseWPF>
-    <AssemblyName>SwiftCopy</AssemblyName>
+    <AssemblyName>FastCopy</AssemblyName>
     <AssemblyTitle>FastCopy</AssemblyTitle>
     <Product>FastCopy</Product>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <ApplicationIcon>Assets/SwiftCopy.ico</ApplicationIcon>
+    <ApplicationIcon>Assets/FastCopy.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup Condition="'$(ILuncherIntegrated)' == 'true'">
     <OutputType>Library</OutputType>
@@ -18,8 +18,8 @@
     <ApplicationDefinition Remove="App.xaml" />
     <Compile Remove="App.xaml.cs" />
   </ItemGroup>
-  <ItemGroup><ProjectReference Include="../SwiftCopy.Core/SwiftCopy.Core.csproj" /></ItemGroup>
-  <ItemGroup><Resource Include="Assets/SwiftCopy.ico"/><Resource Include="Assets/SwiftCopy-24.png"/><Resource Include="Assets/SwiftCopy-32.png"/></ItemGroup>
+  <ItemGroup><ProjectReference Include="../FastCopy.Core/FastCopy.Core.csproj" /></ItemGroup>
+  <ItemGroup><Resource Include="Assets/FastCopy.ico"/><Resource Include="Assets/FastCopy-24.png"/><Resource Include="Assets/FastCopy-32.png"/></ItemGroup>
   <ItemGroup>
     <Resource Include="Assets/Fonts/*.ttf"/>
     <Content Include="Assets/Fonts/OFL.txt" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest"/>

@@ -1,6 +1,6 @@
 ﻿# Render the vector app mark at each native icon size; no font or raster source required.
 Add-Type -AssemblyName PresentationCore,WindowsBase
-$assetDirectory = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../SwiftCopy.App/Assets'))
+$assetDirectory = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../FastCopy.App/Assets'))
 $sizes = @(16,20,24,32,40,48,64,128,256)
 $frames = @()
 foreach ($size in $sizes) {
@@ -20,10 +20,10 @@ foreach ($size in $sizes) {
  $memory = New-Object IO.MemoryStream
  $encoder.Save($memory)
  $frames += ,$memory.ToArray()
- [IO.File]::WriteAllBytes((Join-Path $assetDirectory "SwiftCopy-$size.png"),$memory.ToArray())
+ [IO.File]::WriteAllBytes((Join-Path $assetDirectory "FastCopy-$size.png"),$memory.ToArray())
  $memory.Dispose()
 }
-$stream = [IO.File]::Create((Join-Path $assetDirectory 'SwiftCopy.ico'))
+$stream = [IO.File]::Create((Join-Path $assetDirectory 'FastCopy.ico'))
 $writer = New-Object IO.BinaryWriter($stream)
 $writer.Write([uint16]0); $writer.Write([uint16]1); $writer.Write([uint16]$sizes.Count)
 $offset = 6 + 16 * $sizes.Count

@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interop;
 
-namespace SwiftCopy.App;
+namespace FastCopy.App;
 
 /// <summary>Native Explorer dialog whose Add action accepts both files and folders.</summary>
 [ComVisible(true), ClassInterface(ClassInterfaceType.None)]

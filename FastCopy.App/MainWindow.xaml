@@ -1,11 +1,11 @@
-<Window x:Class="SwiftCopy.App.MainWindow"
+<Window x:Class="FastCopy.App.MainWindow"
  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
  xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
- Title="FastCopy" Icon="/SwiftCopy;component/Assets/SwiftCopy.ico"
+ Title="FastCopy" Icon="/FastCopy;component/Assets/FastCopy.ico"
  Width="980" Height="760" MinWidth="800" MinHeight="640"
  WindowStartupLocation="CenterScreen" Background="#F4F7FC" Foreground="#172033"
- FontFamily="/SwiftCopy;component/Assets/Fonts/#SwiftCopy Sans" FontSize="14" FontWeight="Medium"
+ FontFamily="/FastCopy;component/Assets/Fonts/#FastCopy Sans" FontSize="14" FontWeight="Medium"
  TextOptions.TextFormattingMode="Display" TextOptions.TextRenderingMode="ClearType"
  RenderOptions.ClearTypeHint="Enabled" UseLayoutRounding="True" SnapsToDevicePixels="True"
  WindowStyle="None" ResizeMode="CanResize" StateChanged="Window_StateChanged"
@@ -38,7 +38,7 @@
    <Grid Margin="20,0,12,0">
     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
      <Border Width="38" Height="38" Background="#FFFFFF" CornerRadius="10" Margin="0,0,11,0">
-      <Image x:Name="BrandIcon" Source="/SwiftCopy;component/Assets/SwiftCopy-32.png" Width="28" Height="28" RenderOptions.BitmapScalingMode="HighQuality"/>
+      <Image x:Name="BrandIcon" Source="/FastCopy;component/Assets/FastCopy-32.png" Width="28" Height="28" RenderOptions.BitmapScalingMode="HighQuality"/>
      </Border>
      <StackPanel VerticalAlignment="Center">
       <TextBlock Text="FastCopy" FontFamily="Segoe UI" FontSize="21" FontWeight="SemiBold" Foreground="White"/>

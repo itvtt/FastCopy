@@ -10,9 +10,9 @@ using System.Text;
 using System.Windows.Threading;
 using System.ComponentModel;
 using System.Windows.Shell;
-using SwiftCopy.Core;
+using FastCopy.Core;
 
-namespace SwiftCopy.UiChecks;
+namespace FastCopy.UiChecks;
 internal static class Program
 {
     [DllImport("user32.dll")]
@@ -87,10 +87,10 @@ internal static class Program
     {
         int exitCode = 0;
         var app = new Application();
-        app.Resources = (ResourceDictionary)Application.LoadComponent(new Uri("/SwiftCopy;component/AppResources.xaml", UriKind.Relative));
-        string root = Path.Combine(Path.GetTempPath(), "SwiftCopy-UiChecks-" + Guid.NewGuid().ToString("N"));
+        app.Resources = (ResourceDictionary)Application.LoadComponent(new Uri("/FastCopy;component/AppResources.xaml", UriKind.Relative));
+        string root = Path.Combine(Path.GetTempPath(), "FastCopy-UiChecks-" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(root);
-        var window = new SwiftCopy.App.MainWindow { ShowActivated = false };
+        var window = new FastCopy.App.MainWindow { ShowActivated = false };
         window.Loaded += async (_, _) =>
         {
             try
@@ -120,10 +120,10 @@ internal static class Program
                         throw new Exception("Setup/status/action sections overlap");
                 }
                 CheckLayout();
-                SavePreview(window, "SwiftCopy-preview.png");
+                SavePreview(window, "FastCopy-preview.png");
                 double defaultWidth = window.Width, defaultHeight = window.Height;
                 window.Width = window.MinWidth; window.Height = window.MinHeight;
-                SavePreview(window, "SwiftCopy-minimum.png");
+                SavePreview(window, "FastCopy-minimum.png");
                 CheckLayout();
                 window.Width = defaultWidth; window.Height = defaultHeight;
                 window.UpdateLayout();
@@ -145,9 +145,9 @@ internal static class Program
                     new(2, @"C:\fixtures\failed.bin", @"D:\copy\failed.bin", 50, 12, 0, TransferWorkerState.Failed),
                     new(3, "", "", 0, 0, 0, TransferWorkerState.Waiting)
                 };
-                var updateLanes = typeof(SwiftCopy.App.MainWindow).GetMethod("UpdateWorkerLanes", BindingFlags.Instance | BindingFlags.NonPublic)!;
+                var updateLanes = typeof(FastCopy.App.MainWindow).GetMethod("UpdateWorkerLanes", BindingFlags.Instance | BindingFlags.NonPublic)!;
                 updateLanes.Invoke(window, [laneSnapshots, false]);
-                var lanes = Control<ItemsControl>("WorkerLaneList").Items.Cast<SwiftCopy.App.WorkerLaneViewModel>().ToArray();
+                var lanes = Control<ItemsControl>("WorkerLaneList").Items.Cast<FastCopy.App.WorkerLaneViewModel>().ToArray();
                 if (lanes.Length != 4 || lanes[0].FileName != "alpha.bin" || lanes[0].Stage != "복사 중" || Math.Abs(lanes[0].Progress - 40) > 0.01
                     || lanes[0].CountText != "완료 3개" || lanes[1].Stage != "검증 중" || !lanes[1].IsIndeterminate || lanes[2].Stage != "오류")
                     throw new Exception("Parallel worker lane snapshot states are not represented accurately");
@@ -158,16 +158,16 @@ internal static class Program
                 var fourthBounds = fourthLane.TransformToAncestor(laneViewport).TransformBounds(new Rect(fourthLane.RenderSize));
                 if (fourthBounds.Bottom > laneViewport.ActualHeight + 1)
                     throw new Exception($"Default four worker lanes do not fit without scrolling: fourth={fourthBounds}, viewport={laneViewport.RenderSize}");
-                SavePreview(window, "SwiftCopy-workers.png");
+                SavePreview(window, "FastCopy-workers.png");
                 updateLanes.Invoke(window, [laneSnapshots, true]);
                 if (!lanes[0].Stage.StartsWith("일시정지", StringComparison.Ordinal) || lanes[0].IsIndeterminate || lanes[1].ProgressText != "검증 일시정지")
                     throw new Exception("Paused worker lane state is not represented accurately");
                 Console.WriteLine("PASS Worker selector defaults to 8 with bounded choices; simultaneous copy/verify/error/pause lane states render accurately");
-                if (!window.FontFamily.Source.Contains("SwiftCopy Sans") || window.FontSize < 14) throw new Exception("Bundled readable font not configured");
+                if (!window.FontFamily.Source.Contains("FastCopy Sans") || window.FontSize < 14) throw new Exception("Bundled readable font not configured");
                 foreach (var weight in new[] { FontWeights.Medium, FontWeights.SemiBold })
                 {
                     var face = new Typeface(window.FontFamily, FontStyles.Normal, weight, FontStretches.Normal);
-                    if (!face.TryGetGlyphTypeface(out var glyph) || !glyph.FamilyNames.Values.Contains("SwiftCopy Sans") || glyph.Weight != weight
+                    if (!face.TryGetGlyphTypeface(out var glyph) || !glyph.FamilyNames.Values.Contains("FastCopy Sans") || glyph.Weight != weight
                         || glyph.StyleSimulations != StyleSimulations.None || !glyph.CharacterToGlyphMap.ContainsKey('한'))
                         throw new Exception("Bundled Korean font fallback or synthetic weight detected");
                 }
@@ -175,7 +175,7 @@ internal static class Program
                     throw new Exception("Pixel-aligned ClearType rendering missing");
                 if (window.Icon == null || SendMessage(new WindowInteropHelper(window).Handle, 0x7F, (IntPtr)1, IntPtr.Zero) == IntPtr.Zero)
                     throw new Exception("Window/taskbar icon missing");
-                var icon = new IconBitmapDecoder(new Uri("pack://application:,,,/SwiftCopy;component/Assets/SwiftCopy.ico"), BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
+                var icon = new IconBitmapDecoder(new Uri("pack://application:,,,/FastCopy;component/Assets/FastCopy.ico"), BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
                 if (!new[] { 16, 24, 32, 48, 256 }.All(size => icon.Frames.Any(frame => frame.PixelWidth == size)))
                     throw new Exception("Multi-resolution icon frames missing");
                 Console.WriteLine("PASS Readable font, ClearType, native window icon and multi-resolution ICO");
@@ -220,11 +220,11 @@ internal static class Program
                 if (Control<TextBox>("DestinationBox").Text != browsePath) throw new Exception("Destination browse did not set editable path");
                 Console.WriteLine("PASS Folder-only selection, picker cancellation, and native destination folder browsing");
                 Control<ListBox>("SourceList").SelectAll();
-                typeof(SwiftCopy.App.MainWindow).GetMethod("Remove_Click", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(window, [window, new RoutedEventArgs()]);
+                typeof(FastCopy.App.MainWindow).GetMethod("Remove_Click", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(window, [window, new RoutedEventArgs()]);
                 string file = Path.Combine(root, "UI 테스트.txt");
                 File.WriteAllText(file, "UI button transfer fixture");
                 // Seed the same source collection used by the OS picker and drag/drop.
-                typeof(SwiftCopy.App.MainWindow).GetMethod("AddSources", BindingFlags.Instance | BindingFlags.NonPublic)!
+                typeof(FastCopy.App.MainWindow).GetMethod("AddSources", BindingFlags.Instance | BindingFlags.NonPublic)!
                     .Invoke(window, [new[] { file }]);
                 var destination = Control<TextBox>("DestinationBox");
                 destination.Text = "\"" + Path.Combine(root, "copy") + "\"";
@@ -242,7 +242,7 @@ internal static class Program
                         if (status == "●  탐색 + 전송 중")
                         {
                             sawRunning = Control<TextBlock>("WorkStateTitle").Text.Contains("하고 있습니다");
-                            if (name == "CopyButton") SavePreview(window, "SwiftCopy-running.png");
+                            if (name == "CopyButton") SavePreview(window, "FastCopy-running.png");
                         }
                     };
                     property.AddValueChanged(window, changed);
@@ -260,7 +260,7 @@ internal static class Program
                             || window.TaskbarItemInfo.ProgressState != TaskbarItemProgressState.None)
                             throw new Exception("Immediate feedback, active state or completion summary missing");
                         CheckLayout();
-                        if (name == "CopyButton") SavePreview(window, "SwiftCopy-complete.png");
+                        if (name == "CopyButton") SavePreview(window, "FastCopy-complete.png");
                     }
                     finally { property.RemoveValueChanged(window, changed); }
                 }
@@ -277,9 +277,9 @@ internal static class Program
                 Console.WriteLine("PASS Action buttons restored and log available after completion");
                 Console.WriteLine("PASS Immediate validation, visible running status, taskbar progress and completion summary");
 
-                var preview = new SwiftCopy.App.MainWindow { ShowActivated = false };
+                var preview = new FastCopy.App.MainWindow { ShowActivated = false };
                 preview.Show(); preview.UpdateLayout();
-                SavePreview(preview, "SwiftCopy-preview.png");
+                SavePreview(preview, "FastCopy-preview.png");
                 ((Button)preview.FindName("CloseButton")).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
                 if (preview.IsVisible) throw new Exception("Close button failed");
                 Console.WriteLine("PASS Custom close button");

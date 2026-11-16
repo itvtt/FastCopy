@@ -9,9 +9,9 @@ using System.Windows.Media;
 using System.Windows.Shell;
 using System.Windows.Threading;
 using Microsoft.Win32;
-using SwiftCopy.Core;
+using FastCopy.Core;
 
-namespace SwiftCopy.App;
+namespace FastCopy.App;
 
 public sealed record SourceEntry(string FullPath)
 {
@@ -59,7 +59,7 @@ public partial class MainWindow : Window
     {
         Resources.MergedDictionaries.Add(new ResourceDictionary
         {
-            Source = new Uri("/SwiftCopy;component/AppResources.xaml", UriKind.Relative)
+            Source = new Uri("/FastCopy;component/AppResources.xaml", UriKind.Relative)
         });
         InitializeComponent();
         TaskbarItemInfo = new TaskbarItemInfo();

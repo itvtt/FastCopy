@@ -1,9 +1,9 @@
 using System.ComponentModel;
 using System.IO;
 using System.Runtime.CompilerServices;
-using SwiftCopy.Core;
+using FastCopy.Core;
 
-namespace SwiftCopy.App;
+namespace FastCopy.App;
 
 public sealed class WorkerLaneViewModel : INotifyPropertyChanged
 {

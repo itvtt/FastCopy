@@ -2,7 +2,7 @@ using System.ComponentModel;
 using System.Security.Cryptography;
 using System.Threading.Channels;
 
-namespace SwiftCopy.Core;
+namespace FastCopy.Core;
 
 public static class TransferEngine
 {
@@ -325,7 +325,7 @@ public static class TransferEngine
         }
         string committed = item.Destination;
         int suffix = 1;
-        string temporary = direct ? committed : Path.Combine(folder, $".swiftcopy-{Guid.NewGuid():N}.partial");
+        string temporary = direct ? committed : Path.Combine(folder, $".fastcopy-{Guid.NewGuid():N}.partial");
         bool kept = false;
         string? created = null;
         long transferred = 0;

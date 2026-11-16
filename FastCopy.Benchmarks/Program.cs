@@ -1,6 +1,6 @@
 using System.Diagnostics;
 using System.Text.Json;
-using SwiftCopy.Core;
+using FastCopy.Core;
 
 // Each run creates a unique destination. Fixture creation and byte verification are
 // outside the transfer timer. This measures this machine, not arbitrary USB/NAS hardware.
@@ -10,9 +10,9 @@ if (args[0] == "copydir")
     // copydir <source folder> <destination folder> <workers>: 아무 폴더나 한 번 복사해 걸린 시간 (robocopy 등과 비교용, README 의 표)
     string from = Path.GetFullPath(args[1]), to = Path.GetFullPath(args[2]);
     int count = int.Parse(args[3]);
-    using var run = new TransferSession(Path.Combine(Path.GetTempPath(), "SwiftCopyBench-logs"));
+    using var run = new TransferSession(Path.Combine(Path.GetTempPath(), "FastCopyBench-logs"));
     var timer = Stopwatch.StartNew();
-    var outcome = await TransferEngine.RunAsync(new([from], to, Workers: count, Move: Environment.GetEnvironmentVariable("SWIFTCOPY_MOVE") == "1"), run);
+    var outcome = await TransferEngine.RunAsync(new([from], to, Workers: count, Move: Environment.GetEnvironmentVariable("FASTCOPY_MOVE") == "1"), run);
     timer.Stop();
     if (outcome.Cancelled || outcome.Snapshot.Errors != 0) throw new Exception("Transfer failed.");
     Console.WriteLine(JsonSerializer.Serialize(new { files = outcome.Snapshot.CopiedFiles, bytes = outcome.Snapshot.CopiedBytes, seconds = timer.Elapsed.TotalSeconds }));

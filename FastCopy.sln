@@ -3,13 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SwiftCopy.App", "SwiftCopy.App\SwiftCopy.App.csproj", "{3420CE1B-DC5C-4269-874B-91BA40B2FF28}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FastCopy.App", "FastCopy.App\FastCopy.App.csproj", "{3420CE1B-DC5C-4269-874B-91BA40B2FF28}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SwiftCopy.Core", "SwiftCopy.Core\SwiftCopy.Core.csproj", "{8198AE2E-939B-4EE0-A0CF-2EACCAF6C453}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FastCopy.Core", "FastCopy.Core\FastCopy.Core.csproj", "{8198AE2E-939B-4EE0-A0CF-2EACCAF6C453}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SwiftCopy.Checks", "SwiftCopy.Checks\SwiftCopy.Checks.csproj", "{0198DA08-74E8-4E7B-B489-0820E21CF667}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FastCopy.Checks", "FastCopy.Checks\FastCopy.Checks.csproj", "{0198DA08-74E8-4E7B-B489-0820E21CF667}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SwiftCopy.UiChecks", "SwiftCopy.UiChecks\SwiftCopy.UiChecks.csproj", "{A75B3BC4-C384-4B2B-9E0C-F8C9892CD721}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FastCopy.UiChecks", "FastCopy.UiChecks\FastCopy.UiChecks.csproj", "{A75B3BC4-C384-4B2B-9E0C-F8C9892CD721}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

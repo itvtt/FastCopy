@@ -1,6 +1,6 @@
 using System.Diagnostics;
 
-namespace SwiftCopy.Core;
+namespace FastCopy.Core;
 
 public enum ConflictPolicy { Skip, Overwrite, KeepBoth }
 public enum TransferWorkerState { Waiting, Copying, Verifying, Moving, Completed, Skipped, Failed, Cancelled }
@@ -35,7 +35,7 @@ public sealed class TransferSession : IDisposable
     public string LogPath { get; }
     public TransferSession(string? logDirectory = null)
     {
-        logDirectory ??= Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SwiftCopy", "Logs");
+        logDirectory ??= Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "FastCopy", "Logs");
         Directory.CreateDirectory(logDirectory);
         LogPath = Path.Combine(logDirectory, $"{DateTime.Now:yyyyMMdd-HHmmss}-{Guid.NewGuid():N}.log");
         log = new StreamWriter(LogPath) { AutoFlush = true };

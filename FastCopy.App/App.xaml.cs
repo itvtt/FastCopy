@@ -1,12 +1,14 @@
+using System.IO;
 using System.Windows;
 
-namespace SwiftCopy.App;
+namespace FastCopy.App;
 
 public partial class App : Application
 {
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+        MoveFormerDataFolder();
         // i-luncher AppKit: 설치된 사본이면 시작할 때 GitHub 릴리스를 확인해 스스로 업데이트 (AppKit\AppUpdater.cs)
         ILuncher.AppKit.AppUpdater.StartBackground(ready => Dispatcher.BeginInvoke(() =>
         {
@@ -17,5 +19,17 @@ public partial class App : Application
                 Shutdown();
             }
         }));
+    }
+
+    /// <summary>예전 이름(SwiftCopy, 2026-11-16 FastCopy 로 바꿈)의 기록 폴더 %LOCALAPPDATA%\SwiftCopy 를 FastCopy 로 옮김 (새 폴더가 아직 없을 때 한 번)</summary>
+    private static void MoveFormerDataFolder()
+    {
+        string local = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+        string former = Path.Combine(local, "SwiftCopy"), current = Path.Combine(local, "FastCopy");
+        try
+        {
+            if (Directory.Exists(former) && !Directory.Exists(current)) Directory.Move(former, current);
+        }
+        catch (Exception error) when (error is IOException or UnauthorizedAccessException) { }
     }
 }

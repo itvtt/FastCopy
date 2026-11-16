@@ -2,7 +2,7 @@ using System.ComponentModel;
 using System.Runtime.InteropServices;
 using Microsoft.Win32.SafeHandles;
 
-namespace SwiftCopy.Core;
+namespace FastCopy.Core;
 
 internal static class NativeFiles
 {

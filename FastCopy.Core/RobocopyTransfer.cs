@@ -3,12 +3,12 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace SwiftCopy.Core;
+namespace FastCopy.Core;
 
 /// <summary>
 /// 폴더를 새 위치로 복사할 때는 Windows 의 robocopy 로 복사함 (같은 동시 작업 수).
 /// 같은 Windows 복사 함수를 써도 Defender 가 robocopy 가 만든 파일을 훨씬 덜 검사해서, 작은 파일이 많을 때 더 빠름
-/// (4 KB 파일 2만 개: SwiftCopy 엔진 7.3초, robocopy 6.0초. 2026-11-13 측정, README).
+/// (4 KB 파일 2만 개: FastCopy 엔진 7.3초, robocopy 6.0초. 2026-11-13 측정, README).
 /// 쓰는 경우: 복사(이동 아님), 검증 안 함, 원본이 모두 폴더이고 대상에 같은 이름이 아직 없음 (새로 만드는 폴더라 덮어쓰기·건너뛰기가 없음).
 /// 취소하면 robocopy 를 끝내고, 원본과 크기·수정 시각이 다른 파일(덜 복사된 것)을 지움. 대상 폴더는 이번에 새로 만든 것이라 다른 파일이 없음.
 /// </summary>
@@ -16,9 +16,9 @@ internal static partial class RobocopyTransfer
 {
     private static readonly string Robocopy = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "robocopy.exe");
 
-    /// <summary>테스트·비교용: SWIFTCOPY_ENGINE=own 이면 쓰지 않음</summary>
+    /// <summary>테스트·비교용: FASTCOPY_ENGINE=own 이면 쓰지 않음</summary>
     internal static bool CanUse(TransferOptions options, IReadOnlyList<string> roots, string destination) =>
-        Environment.GetEnvironmentVariable("SWIFTCOPY_ENGINE") != "own"
+        Environment.GetEnvironmentVariable("FASTCOPY_ENGINE") != "own"
         && !options.Move && !options.Verify && File.Exists(Robocopy) && roots.Count > 0
         && roots.All(root => Directory.Exists(root)
                              && !Directory.Exists(Path.Combine(destination, Path.GetFileName(root)))
@@ -70,7 +70,7 @@ internal static partial class RobocopyTransfer
         {
             if (token.IsCancellationRequested) { cancelled = true; break; }
             string target = Path.Combine(destination, Path.GetFileName(root));
-            string log = Path.Combine(Path.GetTempPath(), $"swiftcopy-robocopy-{Guid.NewGuid():N}.log");
+            string log = Path.Combine(Path.GetTempPath(), $"fastcopy-robocopy-{Guid.NewGuid():N}.log");
             var start = new ProcessStartInfo(Robocopy) { UseShellExecute = false, CreateNoWindow = true };
             foreach (string argument in new[] { root, target, "/E", $"/MT:{options.Workers}", "/R:1", "/W:1", "/XJ", "/NP", "/NDL", "/NJH", "/NJS",
                          "/BYTES", "/FP", "/UNILOG:" + log })

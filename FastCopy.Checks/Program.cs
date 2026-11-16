@@ -1,11 +1,11 @@
 using System.Diagnostics;
 using System.Security.Cryptography;
-using SwiftCopy.Core;
+using FastCopy.Core;
 
 if (args.Length == 2 && args[0] == "--move-existing-fixture")
 {
     string fixture = Path.GetFullPath(args[1]);
-    if (!fixture.StartsWith(Path.Combine(Path.GetTempPath(), "SwiftCopy-Checks-"), StringComparison.OrdinalIgnoreCase)
+    if (!fixture.StartsWith(Path.Combine(Path.GetTempPath(), "FastCopy-Checks-"), StringComparison.OrdinalIgnoreCase)
         || !fixture.EndsWith(Path.Combine("scale", "source"), StringComparison.OrdinalIgnoreCase))
         throw new ArgumentException("Only a generated scale fixture may be used for this check.");
     int before = Directory.EnumerateFiles(fixture, "*", SearchOption.AllDirectories).Count();
@@ -32,7 +32,7 @@ for (int i = 0; i < args.Length; i++)
     filter = args[i];
 }
 
-string root = Path.Combine(Path.GetTempPath(), "SwiftCopy-Checks-" + Guid.NewGuid().ToString("N"));
+string root = Path.Combine(Path.GetTempPath(), "FastCopy-Checks-" + Guid.NewGuid().ToString("N"));
 Directory.CreateDirectory(root);
 var results = new List<string>();
 int failures = 0;
@@ -127,7 +127,7 @@ await Test("Same-volume file rename and merging into existing directories", asyn
 await Test("Cross-volume move copies, verifies, commits and deletes source", async () =>
 {
     string source = Dir("cross/source/tree"); Write("cross/source/tree/sub/a.txt", "cross-volume safe move");
-    string crossVolumeRoot = Environment.GetEnvironmentVariable("SWIFTCOPY_CROSS_VOLUME_ROOT") ?? AppContext.BaseDirectory;
+    string crossVolumeRoot = Environment.GetEnvironmentVariable("FASTCOPY_CROSS_VOLUME_ROOT") ?? AppContext.BaseDirectory;
     Directory.CreateDirectory(crossVolumeRoot);
     string dest = Path.Combine(crossVolumeRoot, "cross-volume-fixture-" + Guid.NewGuid().ToString("N"));
     Assert(Path.GetPathRoot(source) != Path.GetPathRoot(dest), "This check requires test binaries and TEMP on different volumes");
@@ -298,7 +298,7 @@ int count = args.Contains("--scale") ? 300_000 : 5_000;
 await Test($"Bounded-queue scale transfer of {count:N0} small files", async () =>
 {
     string source = Dir("scale/source"); string dest = Dir("scale/dest");
-    byte[] data = System.Text.Encoding.UTF8.GetBytes("SwiftCopy fixture · small-file content verification");
+    byte[] data = System.Text.Encoding.UTF8.GetBytes("FastCopy fixture · small-file content verification");
     for (int i = 0; i < count; i++)
     {
         string folder = Path.Combine(source, (i / 1000).ToString("D4"));
@@ -348,7 +348,7 @@ if (executed == 0)
     results.Add(line);
     Console.WriteLine(line);
 }
-File.WriteAllLines(report, new[] { $"SwiftCopy verification · {DateTime.Now:O}", $"Workspace: {root}",
+File.WriteAllLines(report, new[] { $"FastCopy verification · {DateTime.Now:O}", $"Workspace: {root}",
     $"Filter: {filter ?? "(none)"}", $"Checks executed: {executed}", $"Failures: {failures}" }.Concat(results));
 Console.WriteLine($"\n{results.Count(x => x.StartsWith("PASS"))} passed, {failures} failed, {executed} executed. Report: {report}");
 // Fixtures remain available for inspection. Only the uniquely named directory above is test-owned.

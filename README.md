@@ -1,6 +1,6 @@
 # FastCopy
 
-> **이름**: 런처·창 제목에 보이는 이름과 저장소·폴더 이름은 **FastCopy** 입니다. 코드와 설치 이름은 예전 이름 **SwiftCopy** 그대로입니다: 프로젝트 `SwiftCopy.App`·`SwiftCopy.Core`(네임스페이스 `SwiftCopy`), 실행 파일 `SwiftCopy.exe`, 설치 폴더 `%LOCALAPPDATA%\Programs\SwiftCopy`, 런처 id `swiftcopy`, 기록 폴더 `%LOCALAPPDATA%\SwiftCopy`. 설치·자체 업데이트가 이 이름을 따르므로 바꾸지 않습니다. 사용자가 "FastCopy"라고 하면 이 앱입니다.
+> **이름**: 런처·창 제목·저장소·폴더·코드·실행 파일·설치 이름 모두 **FastCopy** 입니다 (2026-11-16 예전 이름 SwiftCopy 에서 모두 바꿈): 프로젝트 `FastCopy.App`·`FastCopy.Core`(네임스페이스 `FastCopy`), 실행 파일 `FastCopy.exe`, 설치 폴더 `%LOCALAPPDATA%\Programs\FastCopy`, 런처 id `fastcopy`, 기록 폴더 `%LOCALAPPDATA%\FastCopy`, 글꼴 FastCopy Sans. 예전 이름으로 설치된 것은 i-luncher 가 업데이트할 때 새 이름으로 옮기고(앱 목록의 `formerInstallNames`), 예전 기록 폴더 `%LOCALAPPDATA%\SwiftCopy` 는 처음 실행할 때 옮깁니다.
 
 Windows용 C# WPF 파일 복사·이동 앱입니다. **왼쪽에서 원본을 선택하고, 오른쪽에서 대상 폴더를 정한 뒤 복사 또는 이동 버튼을 누르면 바로 실행됩니다.**
 
@@ -8,13 +8,13 @@ i-luncher 로 설치·업데이트합니다: main 에 push 하면 이 저장소�
 
 ## 실행
 
-i-luncher 에서 **FastCopy** 를 엽니다. 개발 중에는 `dotnet run --project SwiftCopy.App`.
+i-luncher 에서 **FastCopy** 를 엽니다. 개발 중에는 `dotnet run --project FastCopy.App`.
 
 기본 제목 표시줄 대신 앱과 통합된 상단 바를 사용합니다. 오른쪽의 최소화·최대화/복원·닫기 버튼으로 창을 제어하며, 상단 빈 영역 드래그, 더블클릭 최대화/복원, 가장자리 크기 조절을 지원합니다.
 
-기본 창은 980×760 DIP이며, 파란 제목 표시줄과 밝은 원본·대상 패널로 앱을 쉽게 구분할 수 있습니다. 가운데 큰 상태 카드와 굵은 진행 막대에서 대기·전송·완료 상태를 확인합니다. 버튼을 누르면 경로 확인 단계부터 즉시 상태가 바뀌며, 전송 중에는 MB/s뿐 아니라 초당 완료 파일 수·처리량·남은 시간을 표시합니다. 아래에는 동시에 처리하는 파일마다 별도 진행 막대, 파일명, 복사/검증/이동/일시정지 상태, 완료 개수를 표시합니다. 작은 창이나 작업 수가 많은 경우 목록을 스크롤할 수 있습니다. 완료는 초록색, 일시정지·취소는 주황색, 오류는 붉은색 문구로 구분하며 작업표시줄에도 진행 상태를 표시합니다. Noto Sans KR 기반 SwiftCopy Sans 글꼴과 Display/ClearType, 픽셀 정렬을 사용합니다.
+기본 창은 980×760 DIP이며, 파란 제목 표시줄과 밝은 원본·대상 패널로 앱을 쉽게 구분할 수 있습니다. 가운데 큰 상태 카드와 굵은 진행 막대에서 대기·전송·완료 상태를 확인합니다. 버튼을 누르면 경로 확인 단계부터 즉시 상태가 바뀌며, 전송 중에는 MB/s뿐 아니라 초당 완료 파일 수·처리량·남은 시간을 표시합니다. 아래에는 동시에 처리하는 파일마다 별도 진행 막대, 파일명, 복사/검증/이동/일시정지 상태, 완료 개수를 표시합니다. 작은 창이나 작업 수가 많은 경우 목록을 스크롤할 수 있습니다. 완료는 초록색, 일시정지·취소는 주황색, 오류는 붉은색 문구로 구분하며 작업표시줄에도 진행 상태를 표시합니다. Noto Sans KR 기반 FastCopy Sans 글꼴과 Display/ClearType, 픽셀 정렬을 사용합니다.
 
-글꼴은 [Noto Sans KR 원본](https://github.com/google/fonts/tree/main/ofl/notosanskr)을 Medium(500)·SemiBold(600) 정적 폰트로 변환한 SwiftCopy Sans입니다. SIL Open Font License 1.1을 `SwiftCopy.App/Assets/Fonts/OFL.txt`와 글꼴 내부 메타데이터에 포함했습니다. `tools/Build-Fonts.py`는 재생성 스크립트이며 fontTools가 필요합니다. WPF에서 내장 글꼴·한글 글리프·실제 굵기를 확인했으며 합성 굵기를 사용하지 않습니다.
+글꼴은 [Noto Sans KR 원본](https://github.com/google/fonts/tree/main/ofl/notosanskr)을 Medium(500)·SemiBold(600) 정적 폰트로 변환한 FastCopy Sans입니다. SIL Open Font License 1.1을 `FastCopy.App/Assets/Fonts/OFL.txt`와 글꼴 내부 메타데이터에 포함했습니다. `tools/Build-Fonts.py`는 재생성 스크립트이며 fontTools가 필요합니다. WPF에서 내장 글꼴·한글 글리프·실제 굵기를 확인했으며 합성 굵기를 사용하지 않습니다.
 
 - 원본 박스 바깥 오른쪽의 **찾기** 버튼 하나로 Windows 탐색기 선택창을 엽니다. Ctrl/Shift로 파일과 폴더를 함께 선택한 뒤 **추가**를 누릅니다. 폴더를 더블클릭하면 내부로 이동합니다. 확장자 제한이 없으며 드래그 앤 드롭과 탐색기에서 복사한 항목의 Ctrl+V 붙여넣기도 지원합니다.
 - **대상 폴더**는 입력 박스 바깥 오른쪽의 **찾기**로 선택하거나 입력란에 직접 경로를 입력·붙여넣기 합니다. 따옴표로 감싼 경로, 환경 변수, 외장 드라이브와 UNC 네트워크 경로도 지원합니다. 찾아보기는 현재 입력한 폴더가 존재하면 그 위치에서 열립니다.
@@ -39,22 +39,22 @@ i-luncher 에서 **FastCopy** 를 엽니다. 개발 중에는 `dotnet run --proj
 
 ### 폴더를 새 위치로 복사: robocopy 사용
 
-폴더를 대상에 아직 없는 이름으로 그냥 복사할 때(이동·검증 아님)는 Windows 의 `robocopy /MT:<동시 작업 수>` 로 복사합니다 (`SwiftCopy.Core\RobocopyTransfer.cs`).
-같은 Windows 복사 함수를 써도 Defender 가 robocopy 가 만든 파일을 훨씬 덜 검사해서, 작은 파일이 많을 때 SwiftCopy 엔진보다 빠릅니다(같은 복사에서 Defender CPU 약 29초 대 9초).
-진행 상황은 robocopy 의 유니코드 로그로 보여 주고, 일시정지는 robocopy 를 멈추며, 취소하면 원본과 크기·수정 시각이 다른 파일(덜 복사된 것)을 지웁니다. 기존 폴더에 합치기, 파일 선택, 이동, 검증은 SwiftCopy 엔진이 합니다. 시험할 때 `SWIFTCOPY_ENGINE=own` 이면 엔진만 씁니다.
+폴더를 대상에 아직 없는 이름으로 그냥 복사할 때(이동·검증 아님)는 Windows 의 `robocopy /MT:<동시 작업 수>` 로 복사합니다 (`FastCopy.Core\RobocopyTransfer.cs`).
+같은 Windows 복사 함수를 써도 Defender 가 robocopy 가 만든 파일을 훨씬 덜 검사해서, 작은 파일이 많을 때 FastCopy 엔진보다 빠릅니다(같은 복사에서 Defender CPU 약 29초 대 9초).
+진행 상황은 robocopy 의 유니코드 로그로 보여 주고, 일시정지는 robocopy 를 멈추며, 취소하면 원본과 크기·수정 시각이 다른 파일(덜 복사된 것)을 지웁니다. 기존 폴더에 합치기, 파일 선택, 이동, 검증은 FastCopy 엔진이 합니다. 시험할 때 `FASTCOPY_ENGINE=own` 이면 엔진만 씁니다.
 
 측정 (2026-11-13, 이 PC: 가상 디스크 Z: → F:, Defender 켜짐, 동시 8개, 중간값):
 
-| 파일 | 처음 | SwiftCopy 엔진만 | 지금 (robocopy 사용) | robocopy /MT:8 |
+| 파일 | 처음 | FastCopy 엔진만 | 지금 (robocopy 사용) | robocopy /MT:8 |
 |---|---|---|---|---|
 | 4 KB × 20,000 | 8.9초 | 7.3초 | 5.8초 | 5.7초 |
 | 1 MB × 1,000 | 1.5초 | 1.1초 | 1.7초 | 1.7초 |
 | 1 GB × 4 | 8초 | 8초 | 8.0초 | 7.9초 |
 
-이 PC 에서는 robocopy 동시 8개가 한계입니다: 동시 32개 7.5초, robocopy 2개 동시 7.8초, 4개 동시 45초로 오히려 느려집니다. 측정: `SwiftCopy.Benchmarks copydir <원본> <대상> <동시 작업 수>`.
+이 PC 에서는 robocopy 동시 8개가 한계입니다: 동시 32개 7.5초, robocopy 2개 동시 7.8초, 4개 동시 45초로 오히려 느려집니다. 측정: `FastCopy.Benchmarks copydir <원본> <대상> <동시 작업 수>`.
 
 - 취소·실패하면 진행 중인 임시 파일이나 끝나지 않은 바로 복사 파일을 지우고 이미 완료한 파일은 유지합니다. 원본과 대상이 겹치는 경로는 거부합니다. 권한·잠금 등의 오류는 기록하고 다른 항목을 계속 처리합니다.
-- 전송 기록: `%LOCALAPPDATA%\SwiftCopy\Logs`. 오류, 건너뜀, 재시도, 폴더 즉시 이동과 최종 집계를 기록합니다.
+- 전송 기록: `%LOCALAPPDATA%\FastCopy\Logs`. 오류, 건너뜀, 재시도, 폴더 즉시 이동과 최종 집계를 기록합니다.
 
 실제 속도는 SSD/HDD, USB 연결, 네트워크, 백신, 대상 파일 개수에 따라 달라집니다. 같은 볼륨의 폴더 전체 이름 변경 성능을 다른 드라이브 복사 성능으로 해석하면 안 됩니다.
 
@@ -78,23 +78,23 @@ i-luncher 에서 **FastCopy** 를 엽니다. 개발 중에는 `dotnet run --proj
 
 .NET 10 SDK와 Windows가 필요합니다. 외부 NuGet UI 라이브러리는 사용하지 않습니다.
 
-Visual Studio에서 `SwiftCopy.sln`을 열고 `SwiftCopy.App`을 시작 프로젝트로 실행합니다. 기존 시작 설정 때문에 "클래스 라이브러리인 프로젝트는 직접 시작할 수 없습니다"가 표시되면, 솔루션 탐색기에서 `SwiftCopy.App`을 마우스 오른쪽 버튼으로 클릭해 **시작 프로젝트로 설정**한 뒤 F5를 누르세요. `SwiftCopy.Core`는 앱이 사용하는 클래스 라이브러리이므로 직접 실행할 수 없습니다.
+Visual Studio에서 `FastCopy.sln`을 열고 `FastCopy.App`을 시작 프로젝트로 실행합니다. 기존 시작 설정 때문에 "클래스 라이브러리인 프로젝트는 직접 시작할 수 없습니다"가 표시되면, 솔루션 탐색기에서 `FastCopy.App`을 마우스 오른쪽 버튼으로 클릭해 **시작 프로젝트로 설정**한 뒤 F5를 누르세요. `FastCopy.Core`는 앱이 사용하는 클래스 라이브러리이므로 직접 실행할 수 없습니다.
 
 ```powershell
-dotnet build SwiftCopy.sln -c Release
-dotnet run --project SwiftCopy.App -c Debug
-dotnet run --project SwiftCopy.Checks -c Release
-dotnet run --project SwiftCopy.Checks -c Release -- --scale
-dotnet run --project SwiftCopy.UiChecks -c Release
-# 릴리스 zip (러너가 하는 것과 같음): out\SwiftCopy-win-x64.zip
-powershell -NoProfile -ExecutionPolicy Bypass -File build\Publish-App.ps1 -Project SwiftCopy.App\SwiftCopy.App.csproj
+dotnet build FastCopy.sln -c Release
+dotnet run --project FastCopy.App -c Debug
+dotnet run --project FastCopy.Checks -c Release
+dotnet run --project FastCopy.Checks -c Release -- --scale
+dotnet run --project FastCopy.UiChecks -c Release
+# 릴리스 zip (러너가 하는 것과 같음): out\FastCopy-win-x64.zip
+powershell -NoProfile -ExecutionPolicy Bypass -File build\Publish-App.ps1 -Project FastCopy.App\FastCopy.App.csproj
 ```
 
-`SwiftCopy.Core`: 전송 엔진 / `SwiftCopy.App`: WPF 화면 / `SwiftCopy.Checks`: 실제 파일 검사 / `SwiftCopy.UiChecks`: WPF 이벤트 검사.
+`FastCopy.Core`: 전송 엔진 / `FastCopy.App`: WPF 화면 / `FastCopy.Checks`: 실제 파일 검사 / `FastCopy.UiChecks`: WPF 이벤트 검사.
 
-아이콘 원본은 `SwiftCopy.App/Assets/SwiftCopy.svg`입니다. `tools/Build-Icon.ps1`로 16/20/24/32/40/48/64/128/256px PNG와 다중 해상도 `SwiftCopy.ico`를 재생성할 수 있습니다.
+아이콘 원본은 `FastCopy.App/Assets/FastCopy.svg`입니다. `tools/Build-Icon.ps1`로 16/20/24/32/40/48/64/128/256px PNG와 다중 해상도 `FastCopy.ico`를 재생성할 수 있습니다.
 
-검사에서 생성한 자료는 `%TEMP%\SwiftCopy-Checks-*`, `%TEMP%\SwiftCopy-UiChecks-*` 및 검사 출력 폴더의 `cross-volume-fixture-*`에 남겨 확인할 수 있습니다. 다른 볼륨 이동 검사는 TEMP와 검사 실행 파일이 다른 드라이브에 있을 때 실행합니다. 같은 드라이브이면 `SWIFTCOPY_CROSS_VOLUME_ROOT` 환경 변수에 다른 드라이브의 검사 폴더를 지정합니다. `--filter Cross-volume`으로 해당 검사만 다시 실행할 수 있습니다.
+검사에서 생성한 자료는 `%TEMP%\FastCopy-Checks-*`, `%TEMP%\FastCopy-UiChecks-*` 및 검사 출력 폴더의 `cross-volume-fixture-*`에 남겨 확인할 수 있습니다. 다른 볼륨 이동 검사는 TEMP와 검사 실행 파일이 다른 드라이브에 있을 때 실행합니다. 같은 드라이브이면 `FASTCOPY_CROSS_VOLUME_ROOT` 환경 변수에 다른 드라이브의 검사 폴더를 지정합니다. `--filter Cross-volume`으로 해당 검사만 다시 실행할 수 있습니다.
 
 Windows API 근거: [CopyFileExW](https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-copyfileexw), [MoveFileExW](https://learn.microsoft.com/ko-kr/windows/win32/api/winbase/nf-winbase-movefileexw).
 
