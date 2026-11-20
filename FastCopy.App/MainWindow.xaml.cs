@@ -185,6 +185,9 @@ public partial class MainWindow : Window
             if (!result.Cancelled)
             {
                 var s = result.Snapshot;
+                // ImPerformance 성과 계산용: 옮긴 용량과 걸린 시간 (AppKit\AppUsage.cs)
+                ILuncher.AppKit.AppUsage.Count("copy", s.CopiedBytes);
+                ILuncher.AppKit.AppUsage.Count("copy-time", s.Elapsed.TotalSeconds);
                 WorkStateDescription.Text = $"파일 {s.CopiedFiles:N0}개 · {FormatBytes(s.CopiedBytes)} · 건너뜀 {s.Skipped:N0}개 · 오류 {s.Errors:N0}개"
                     + (s.MovedDirectories > 0 ? $" · 폴더 {s.MovedDirectories:N0}개 즉시 이동" : "");
             }
