@@ -202,7 +202,6 @@
     </StackPanel>
    </Grid>
   </Border>
-  <TextBlock Grid.Row="2" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,22,1" FontSize="9.5" Foreground="#8A97AB" IsHitTestVisible="False" Text="made by jy01.ahn"/>
   <Border Grid.RowSpan="3" BorderBrush="#B8C6DA" BorderThickness="1" CornerRadius="11" IsHitTestVisible="False"/>
  </Grid>
 </Window>
